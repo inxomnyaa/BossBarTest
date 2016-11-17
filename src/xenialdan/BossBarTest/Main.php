@@ -12,9 +12,7 @@ use pocketmine\event\Listener;
 use pocketmine\plugin\PluginBase;
 use pocketmine\event\player\PlayerJoinEvent;
 use xenialdan\BossBarAPI\API;
-use pocketmine\event\entity\EntityLevelChangeEvent;
-use pocketmine\Server;
-use pocketmine\Player;
+use pocketmine\utils\TextFormat;
 
 class Main extends PluginBase implements Listener{
 	public $eid = null;
@@ -30,25 +28,21 @@ class Main extends PluginBase implements Listener{
 	}
 
 	public function onJoin(PlayerJoinEvent $ev){
-		$this->eid = API::addBossBar([$ev->getPlayer()], sprintf('Hello %s | Time: %s', $ev->getPlayer()->getName(), date('H:i:s')));
-		$this->getServer()->getLogger()->debug($this->eid === NULL?'Couldn\'t add BossBar':'Successfully added BossBar for EID: ' . $this->eid);
+		if($this->eid === null){
+			$this->eid = API::addBossBar([$ev->getPlayer()], 'Joining..');
+			$this->getServer()->getLogger()->debug($this->eid === NULL?'Couldn\'t add BossBar':'Successfully added BossBar with EID: ' . $this->eid);
+		}
+		else{
+			API::sendBossBarToPlayer($ev->getPlayer(), $this->eid, 'Joining..');
+			$this->getServer()->getLogger()->debug('Sendt BossBar with existing EID: ' . $this->eid);
+		}
 	}
 
 	public function sendBossBar(){
 		if($this->eid === null) return;
-		foreach(Server::getInstance()->getDefaultLevel()->getPlayers() as $player){
-			API::setTitle(sprintf('Hello %s | Time: %s', $player->getName(), date('H:i:s')), $this->eid);
-		}
-	}
-
-	public function levelChangeRemoveOrAdd(EntityLevelChangeEvent $ev){
-		if(!$ev->getEntity() instanceof Player) return;
-		if($this->eid === null) return;
-		if($ev->getTarget()->getId() === Server::getInstance()->getDefaultLevel()->getId()){ // Only bar in Lobby
-			API::sendBossBarToPlayer($ev->getEntity(), $this->eid, sprintf('Hello %s | Time: %s', $ev->getEntity()->getName(), date('H:i:s')));
-		}
-		else{
-			API::removeBossBar([$ev->getEntity()], $this->eid);
+		foreach($this->getServer()->getDefaultLevel()->getPlayers() as $player){
+			API::setTitle(TextFormat::BOLD . '>>' . TextFormat::RESET . ' Hello ' . $player->getName() . ' | Time: ' . TextFormat::GREEN . date('H:i:s') . ' ' . TextFormat::BOLD . '<<', $this->eid);
+			API::setPercentage(100, $this->eid);
 		}
 	}
 }

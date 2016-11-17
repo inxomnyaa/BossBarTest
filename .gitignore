@@ -49,3 +49,4 @@ Temporary Items
 .project
 *.xml
 .settings/org.eclipse.php.core.prefs
+.settings/org.eclipse.core.resources.prefs

@@ -4,7 +4,6 @@ namespace xenialdan\BossBarTest;
 
 use pocketmine\scheduler\PluginTask;
 use pocketmine\plugin\Plugin;
-use pocketmine\Player;
 
 class SendTask extends PluginTask{
 
