@@ -18,31 +18,32 @@ class Main extends PluginBase implements Listener{
 	public $eid = null;
 
 	public function onEnable(){
-		if(($API = $this->getServer()->getPluginManager()->getPlugin("BossBarAPI")) !== null){}
-		else{
-			$this->getServer()->getPluginManager()->disablePlugin($this);
-			return;
-		}
 		$this->getServer()->getPluginManager()->registerEvents($this, $this);
-		$this->getServer()->getScheduler()->scheduleRepeatingTask(new SendTask($this), 20);
+		$this->getScheduler()->scheduleRepeatingTask(new \xenialdan\BossBarAPI\SendTask($this), 20);
 	}
 
 	public function onJoin(PlayerJoinEvent $ev){
 		if($this->eid === null){
 			$this->eid = API::addBossBar([$ev->getPlayer()], 'Joining..');
-			$this->getServer()->getLogger()->debug($this->eid === NULL?'Couldn\'t add BossBar':'Successfully added BossBar with EID: ' . $this->eid);
+			$this->getServer()->getLogger()->debug(is_null($this->eid)?'Couldn\'t add BossBar':'Successfully added BossBar with EID: ' . $this->eid);
+			if(!is_null($this->eid)){
+                API::setPercentage(100, $this->eid);
+            }
 		}
 		else{
 			API::sendBossBarToPlayer($ev->getPlayer(), $this->eid, 'Joining..');
-			$this->getServer()->getLogger()->debug('Sendt BossBar with existing EID: ' . $this->eid);
+			$this->getServer()->getLogger()->debug('Sent BossBar with existing EID: ' . $this->eid);
+            API::setPercentage(100, $this->eid);
 		}
 	}
 
-	public function sendBossBar(){
+    /**
+     * Function called by \xenialdan\BossBarAPI\SendTask
+     */
+    public function sendBossBar(){
 		if($this->eid === null) return;
 		foreach($this->getServer()->getDefaultLevel()->getPlayers() as $player){
 			API::setTitle(TextFormat::BOLD . '>>' . TextFormat::RESET . ' Hello ' . $player->getName() . ' | Time: ' . TextFormat::GREEN . date('H:i:s') . ' ' . TextFormat::BOLD . '<<', $this->eid);
-			API::setPercentage(100, $this->eid);
 		}
 	}
 }
