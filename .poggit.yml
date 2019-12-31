@@ -4,4 +4,7 @@ branches:
 projects:
   BossBarTest:
     path: ""
+    libs:
+    - src: thebigsmilexd/apibossbar/apibossbar
+      version: ^0.0.3
 ...
